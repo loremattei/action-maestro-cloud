@@ -46821,7 +46821,7 @@ class StatusPoller {
                     (0, log_1.info)(`${this.consoleUrl}`);
                     core.setOutput('MAESTRO_CLOUD_UPLOAD_STATUS', status);
                     core.setOutput('MAESTRO_CLOUD_FLOW_RESULTS', flows);
-                    if (status === ApiClient_1.UploadStatus.ERROR) {
+                    if (status !== ApiClient_1.UploadStatus.SUCCESS) {
                         const resultStr = getFailedFlowsCountStr(flows);
                         console.log('');
                         this.markFailed(resultStr);
