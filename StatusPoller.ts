@@ -146,6 +146,7 @@ export default class StatusPoller {
         warning(
           `Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`
         )
+        this.markFailed('Timed out waiting for Upload to complete')
         this.stopped = true
       },
       timeoutInMinutes ? timeoutInMinutes * 60 * 1000 : WAIT_TIMEOUT_MS

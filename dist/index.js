@@ -46821,7 +46821,7 @@ class StatusPoller {
                     (0, log_1.info)(`${this.consoleUrl}`);
                     core.setOutput('MAESTRO_CLOUD_UPLOAD_STATUS', status);
                     core.setOutput('MAESTRO_CLOUD_FLOW_RESULTS', flows);
-                    if (status !== ApiClient_1.UploadStatus.SUCCESS) {
+                    if (status === ApiClient_1.UploadStatus.ERROR) {
                         const resultStr = getFailedFlowsCountStr(flows);
                         console.log('');
                         this.markFailed(resultStr);
@@ -46859,6 +46859,7 @@ class StatusPoller {
     registerTimeout(timeoutInMinutes) {
         this.timeout = setTimeout(() => {
             (0, log_1.warning)(`Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`);
+            this.markFailed('Timed out waiting for Upload to complete');
             this.stopped = true;
         }, timeoutInMinutes ? timeoutInMinutes * 60 * 1000 : WAIT_TIMEOUT_MS);
     }
