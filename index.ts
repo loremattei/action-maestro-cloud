@@ -70,6 +70,7 @@ const run = async () => {
     deviceLocale,
     timeout,
     projectId,
+    strictSuccess,
   } = await getParameters()
 
   let appFile = null
@@ -121,7 +122,7 @@ const run = async () => {
     core.setOutput('ROBIN_CONSOLE_URL', consoleUrl)
     core.setOutput('ROBIN_APP_BINARY_ID', appBinaryIdResponse)
     !async &&
-      new StatusPoller(client, uploadId, consoleUrl).startPolling(timeout)
+      new StatusPoller(client, uploadId, consoleUrl).startPolling(timeout, strictSuccess)
   } else {
     /**
      * If project Exist - Its Cloud

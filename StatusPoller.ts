@@ -140,13 +140,14 @@ export default class StatusPoller {
     }
   }
 
-  registerTimeout(timeoutInMinutes?: number) {
+  registerTimeout(timeoutInMinutes?: number, strictSuccess?: boolean) {
     this.timeout = setTimeout(
       () => {
-        warning(
-          `Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`
-        )
-        this.markFailed('Timed out waiting for Upload to complete')
+        const timeoutMessage = `Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`
+        warning(timeoutMessage)
+        if (strictSuccess) {
+          this.markFailed(timeoutMessage)
+        }
         this.stopped = true
       },
       timeoutInMinutes ? timeoutInMinutes * 60 * 1000 : WAIT_TIMEOUT_MS
@@ -157,7 +158,7 @@ export default class StatusPoller {
     this.timeout && clearTimeout(this.timeout)
   }
 
-  startPolling(timeout?: number) {
+  startPolling(timeout?: number, strictSuccess?: boolean) {
     try {
       this.poll(INTERVAL_MS)
       info('Waiting for analyses to complete...\n')
@@ -165,6 +166,6 @@ export default class StatusPoller {
       this.markFailed(err instanceof Error ? err.message : `${err} `)
     }
 
-    this.registerTimeout(timeout)
+    this.registerTimeout(timeout, strictSuccess)
   }
 }

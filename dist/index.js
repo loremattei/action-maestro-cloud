@@ -46856,17 +46856,20 @@ class StatusPoller {
             }
         });
     }
-    registerTimeout(timeoutInMinutes) {
+    registerTimeout(timeoutInMinutes, strictSuccess) {
         this.timeout = setTimeout(() => {
-            (0, log_1.warning)(`Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`);
-            this.markFailed('Timed out waiting for Upload to complete');
+            const timeoutMessage = `Timed out waiting for Upload to complete. View the Upload in the console for more information: ${this.consoleUrl}`;
+            (0, log_1.warning)(timeoutMessage);
+            if (strictSuccess) {
+                this.markFailed(timeoutMessage);
+            }
             this.stopped = true;
         }, timeoutInMinutes ? timeoutInMinutes * 60 * 1000 : WAIT_TIMEOUT_MS);
     }
     teardown() {
         this.timeout && clearTimeout(this.timeout);
     }
-    startPolling(timeout) {
+    startPolling(timeout, strictSuccess) {
         try {
             this.poll(INTERVAL_MS);
             (0, log_1.info)('Waiting for analyses to complete...\n');
@@ -46874,7 +46877,7 @@ class StatusPoller {
         catch (err) {
             this.markFailed(err instanceof Error ? err.message : `${err} `);
         }
-        this.registerTimeout(timeout);
+        this.registerTimeout(timeout, strictSuccess);
     }
 }
 exports["default"] = StatusPoller;
@@ -47109,7 +47112,7 @@ const createWorkspaceZip = (workspaceFolder) => __awaiter(void 0, void 0, void 0
     return 'workspace.zip';
 });
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
-    const { apiKey, apiUrl, name, appFilePath, mappingFile, workspaceFolder, branchName, commitSha, repoOwner, repoName, pullRequestId, env, async, androidApiLevel, iOSVersion, includeTags, excludeTags, appBinaryId, deviceLocale, timeout, projectId, } = yield (0, params_1.getParameters)();
+    const { apiKey, apiUrl, name, appFilePath, mappingFile, workspaceFolder, branchName, commitSha, repoOwner, repoName, pullRequestId, env, async, androidApiLevel, iOSVersion, includeTags, excludeTags, appBinaryId, deviceLocale, timeout, projectId, strictSuccess, } = yield (0, params_1.getParameters)();
     let appFile = null;
     if (appFilePath !== '') {
         appFile = yield (0, app_file_1.validateAppFile)(yield (0, archive_utils_1.zipIfFolder)(appFilePath));
@@ -47146,7 +47149,7 @@ const run = () => __awaiter(void 0, void 0, void 0, function* () {
         core.setOutput('ROBIN_CONSOLE_URL', consoleUrl);
         core.setOutput('ROBIN_APP_BINARY_ID', appBinaryIdResponse);
         !async &&
-            new StatusPoller_1.default(client, uploadId, consoleUrl).startPolling(timeout);
+            new StatusPoller_1.default(client, uploadId, consoleUrl).startPolling(timeout, strictSuccess);
     }
     else {
         /**
@@ -47324,6 +47327,9 @@ function getIOSVersion(iosVersion) {
 function getTimeout(timeout) {
     return timeout ? +timeout : undefined;
 }
+function getStrictSuccess(strictSuccess) {
+    return strictSuccess ? strictSuccess === 'true' : false;
+}
 function parseTags(tags) {
     if (tags === undefined || tags === '')
         return [];
@@ -47361,6 +47367,7 @@ function getParameters() {
         }
         const deviceLocale = core.getInput('device-locale', { required: false });
         const timeoutString = core.getInput('timeout', { required: false });
+        const strictSuccessString = core.getInput('strict-success', { required: false });
         var env = {};
         env = core
             .getMultilineInput('env', { required: false })
@@ -47383,6 +47390,7 @@ function getParameters() {
         const androidApiLevel = getAndroidApiLevel(androidApiLevelString);
         const iOSVersion = getIOSVersion(iOSVersionString);
         const timeout = getTimeout(timeoutString);
+        const strictSuccess = getStrictSuccess(strictSuccessString);
         return {
             apiUrl,
             name,
@@ -47405,6 +47413,7 @@ function getParameters() {
             deviceLocale,
             timeout,
             projectId,
+            strictSuccess,
         };
     });
 }

@@ -2,6 +2,8 @@ import * as github from '@actions/github'
 import * as core from '@actions/core'
 import { AppFile, validateMappingFile } from './app_file'
 import { PushEvent } from '@octokit/webhooks-definitions/schema'
+import { get } from 'http'
+import { strict } from 'assert'
 
 export type Params = {
   projectId?: string
@@ -25,6 +27,7 @@ export type Params = {
   appBinaryId: string
   deviceLocale?: string
   timeout?: number
+  strictSuccess?: boolean
 }
 
 function getBranchName(): string {
@@ -101,6 +104,10 @@ function getTimeout(timeout?: string): number | undefined {
   return timeout ? +timeout : undefined
 }
 
+function getStrictSuccess(strictSuccess?: string): boolean {
+  return strictSuccess ? strictSuccess === 'true' : false
+}
+
 function parseTags(tags?: string): string[] {
   if (tags === undefined || tags === '') return []
 
@@ -148,6 +155,7 @@ export async function getParameters(): Promise<Params> {
 
   const deviceLocale = core.getInput('device-locale', { required: false })
   const timeoutString = core.getInput('timeout', { required: false })
+  const strictSuccessString = core.getInput('strict-success', { required: false })
 
   var env: { [key: string]: string } = {}
   env = core
@@ -174,6 +182,7 @@ export async function getParameters(): Promise<Params> {
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString)
   const iOSVersion = getIOSVersion(iOSVersionString)
   const timeout = getTimeout(timeoutString)
+  const strictSuccess = getStrictSuccess(strictSuccessString)
 
   return {
     apiUrl,
@@ -197,5 +206,6 @@ export async function getParameters(): Promise<Params> {
     deviceLocale,
     timeout,
     projectId,
+    strictSuccess,
   }
 }
