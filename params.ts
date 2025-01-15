@@ -27,7 +27,7 @@ export type Params = {
   appBinaryId: string
   deviceLocale?: string
   timeout?: number
-  strictSuccess?: boolean
+  failOnTimeout?: boolean
 }
 
 function getBranchName(): string {
@@ -104,8 +104,8 @@ function getTimeout(timeout?: string): number | undefined {
   return timeout ? +timeout : undefined
 }
 
-function getStrictSuccess(strictSuccess?: string): boolean {
-  return strictSuccess ? strictSuccess === 'true' : false
+function getFailOnTimeout(failOnTimeout?: string): boolean {
+  return failOnTimeout ? failOnTimeout === 'true' : false
 }
 
 function parseTags(tags?: string): string[] {
@@ -155,7 +155,7 @@ export async function getParameters(): Promise<Params> {
 
   const deviceLocale = core.getInput('device-locale', { required: false })
   const timeoutString = core.getInput('timeout', { required: false })
-  const strictSuccessString = core.getInput('strict-success', { required: false })
+  const failOnTimeoutString = core.getInput('fail-on-timeout', { required: false })
 
   var env: { [key: string]: string } = {}
   env = core
@@ -182,7 +182,7 @@ export async function getParameters(): Promise<Params> {
   const androidApiLevel = getAndroidApiLevel(androidApiLevelString)
   const iOSVersion = getIOSVersion(iOSVersionString)
   const timeout = getTimeout(timeoutString)
-  const strictSuccess = getStrictSuccess(strictSuccessString)
+  const failOnTimeout = getFailOnTimeout(failOnTimeoutString)
 
   return {
     apiUrl,
@@ -206,6 +206,6 @@ export async function getParameters(): Promise<Params> {
     deviceLocale,
     timeout,
     projectId,
-    strictSuccess,
+    failOnTimeout,
   }
 }
