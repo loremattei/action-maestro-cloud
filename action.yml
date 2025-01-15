@@ -49,6 +49,9 @@ inputs:
   project-id:
     description: "Robin project ID"
     required: false
+  fail-on-timeout:
+    description: "Whether to mark the action as failed if the timeout is reached"
+    required: false
 runs:
   using: "node20"
   main: "dist/index.js"
